@@ -23,6 +23,8 @@ export class AppComponent {
   pacman:any;
   dot:any;
   ghost:any;
+  wall1:any;
+  pic5:any;
 
   listDataLandHasOwner = [];
 
@@ -38,18 +40,23 @@ export class AppComponent {
       this.tileSize = 32;
       this.wall = this.#image("wall.png")
       this.dot = this.#image("ghost.png")
+      this.wall1 = this.#image("eiei.png")
+      this.pacman = this.#image("pacman.png")
+      this.ghost = this.#image("yellowDot.png")
+      this.pic5 = this.#image("eiei.png")
   }
-
+  
   ngOnInit(): void {
     this.ctx = (this.myCanvas.nativeElement as HTMLCanvasElement).getContext('2d');
 
     this.checkAPI = false;
     this.getDataMapService.getData().subscribe({
       next : res =>{
+        console.log();
         this.checkAPI = true;
         
-        this.checkSizeMap(res.map);
-        this.getData(res);
+        this.checkSizeMap(res.size,res.map);
+        // this.getData(res);
         
       },
       error : err =>{
@@ -59,66 +66,23 @@ export class AppComponent {
     })
   }
 
-  checkSizeMap(res:any){
-    console.log(res);
-    let maxWidthMinus = 0;
-    let maxHeigthMinus = 0;
-    let maxWidthPlus = 0;
-    let maxHeigthPlus = 0;
-    //TODO:IF ILL LOGIC CAN EDIT CHECK SIZE 
-    res.forEach((element:any,index:number) => {
-      if(index == 1){
-        console.log(element);
-        maxWidthMinus = element.location[0];
-        maxHeigthMinus = element.location[1];
-      }else{
-        if(maxWidthMinus > element.location[0]){
-          maxWidthMinus = element.location[0];
-        }
-        if (maxWidthPlus < element.location[0]){
-          maxWidthPlus = element.location[0];
-        }
-        if(maxHeigthMinus > element.location[1]){
-          maxHeigthMinus = element.location[1];
-        }
-        if(maxHeigthPlus < element.location[1]){
-          maxHeigthPlus = element.location[1];
-        }
-      }
-    }); 
-    this.maxHeigth = maxHeigthPlus - maxHeigthMinus + 1;
-    this.maxWidth = maxWidthPlus - maxWidthMinus + 1;
-    console.log("maxHeigth",this.maxHeigth);
-    console.log("maxWidth",this.maxWidth);
-    
+  checkSizeMap(res:any,map:any){
+    console.log("height",res.height)
+    console.log("width",res.width)
+    let height = res.height;
+    let width = res.width;
+
     let mapTemp = [];
-    let j =1
-    for(let j = 0; j < this.maxHeigth ; j++){
+    for(let j = 0; j < height ; j++){
       let maptempw = [];
-      for(let i = 0; i < this.maxWidth ; i++){
+      for(let i = 0; i < width ; i++){
         maptempw.push(1);
       }
       mapTemp.push(maptempw);
     }
-    
-    
     this.map = mapTemp;
-
-    this.map[0][0]= 0;
-    this.map[0][1]= 0;
-    this.map[1][0]= 0;
-    this.map[1][1]= 0;
-    //  setTimeout(() => {
-    //   this.draw((this.myCanvas.nativeElement as HTMLCanvasElement),this.ctx);
-    // }, 1000);
-
-    // console.log(this.map[1][1] = 0);
     
-    //TODO:LOCATION BUY ALREADY
-    // this.process();
-   
-    console.log("this.listDataLandHasOwner",this.listDataLandHasOwner)
-    
+    this.drawMapByData(map);
   }
 
   getData(res:any){
@@ -141,18 +105,6 @@ export class AppComponent {
     setTimeout(() => {
       this.draw((this.myCanvas.nativeElement as HTMLCanvasElement),this.ctx);
     }, 1000);
-  //   this.map.forEach((element:any,index:any) => {
-  //     element.forEach((element2:any,index2:any) => {
-  //       console.log(index);
-  //       console.log(index2)
-  //           if(index == 0 &&  index2 == 0){
-  //             element2 = 0;
-  //             setTimeout(() => {
-  //               this.draw((this.myCanvas.nativeElement as HTMLCanvasElement),this.ctx);
-  //             }, 1000);
-  //           }
-  //     })
-  // })
   }
 
   draw(canvas:any, ctx:any) {
@@ -175,10 +127,16 @@ export class AppComponent {
             image = this.dot;
             break;
           case 2:
-            image = this.pacman;
+            image = this.wall1;
             break;
           case 3:
+            image = this.pacman;
+            break;
+          case 4:
             image = this.ghost;
+            break;
+          case 5:
+            image = this.pic5;
             break;
         }
 
@@ -207,6 +165,145 @@ export class AppComponent {
     const img = new Image();
     img.src = `../assets/${(fileName)}`;
     return img;
+  }
+
+  drawMapByData(res:any){
+    let x = -43
+    let y = 1890 -1842
+    console.log("res.map",res)
+    res.forEach((element:any,index:any) => {
+      if(element.type.height== 1 && element.type.width== 1){
+        if(element.location[0] && element.location[1]){
+          let indexY = 0;
+          let indexX = 0;
+          if(element.location[0] > -74){
+             indexX = element.location[0]+74
+          }
+          if(element.location[0] < -74){
+             indexX = element.location[0]-74 
+          }
+          if(element.location[1] > -74){
+             indexY = element.location[1]+74
+          }
+          if(element.location[1] < -74){
+             indexY = element.location[1]-74
+          }
+          if(indexX >= 0 && indexY >= 0){
+            this.map[indexX][indexY] = 0;
+          } 
+          if(indexX < 0 && indexY < 0){
+            console.log("indexX",element.location[0])
+            console.log("indexY",element.location[1])
+          }
+        }
+      } else if (element.type.height== 3 && element.type.width== 3){
+        if(element.location[0] && element.location[1]){
+          let indexY = 0;
+          let indexX = 0;
+          if(element.location[0] > -74){
+            indexX = element.location[0]+74
+         }
+         if(element.location[0] < -74){
+            indexX = element.location[0]-74 
+         }
+         if(element.location[1] > -74){
+            indexY = element.location[1]+74
+         }
+         if(element.location[1] < -74){
+            indexY = element.location[1]-74
+         }
+         if(indexX >= 0 && indexY >= 0){
+          let row1 = indexY;
+          let row2 = indexY;
+          let row3 = indexY;
+          let col1 = indexX + 1;
+          let col2 = indexX + 2;
+
+          for(let i = 0 ; i < 3 ;i++){
+            for(let j = 0 ; j < 3;j++){
+              this.map[indexX+i][indexY+j] = 2;
+            }
+          }
+         } 
+        }
+      } else if (element.type.height== 6 && element.type.width== 6){
+        if(element.location[0] && element.location[1]){
+          let indexY = 0;
+          let indexX = 0;
+          if(element.location[0] > -74){
+            indexX = element.location[0]+74
+         }
+         if(element.location[0] < -74){
+            indexX = element.location[0]-74 
+         }
+         if(element.location[1] > -74){
+            indexY = element.location[1]+74
+         }
+         if(element.location[1] < -74){
+            indexY = element.location[1]-74
+         }
+         if(indexX >= 0 && indexY >= 0){
+          for(let i = 0 ; i < 6 ;i++){
+            for(let j = 0 ; j < 6;j++){
+              this.map[indexX+i][indexY+j] = 3;
+            }
+          }
+         } 
+        }
+      } else if (element.type.height== 12 && element.type.width== 12){
+        if(element.location[0] && element.location[1]){
+          let indexY = 0;
+          let indexX = 0;
+          if(element.location[0] > -74){
+            indexX = element.location[0]+74
+         }
+         if(element.location[0] < -74){
+            indexX = element.location[0]-74 
+         }
+         if(element.location[1] > -74){
+            indexY = element.location[1]+74
+         }
+         if(element.location[1] < -74){
+            indexY = element.location[1]-74
+         }
+         if(indexX >= 0 && indexY >= 0){
+          for(let i = 0 ; i < 12 ;i++){
+            for(let j = 0 ; j < 12;j++){
+              this.map[indexX+i][indexY+j] = 4;
+            }
+          }
+         } 
+        }
+      } else if (element.type.height== 24 && element.type.width== 24){
+        if(element.location[0] && element.location[1]){
+          let indexY = 0;
+          let indexX = 0;
+          if(element.location[0] > -74){
+            indexX = element.location[0]+74
+         }
+         if(element.location[0] < -74){
+            indexX = element.location[0]-74 
+         }
+         if(element.location[1] > -74){
+            indexY = element.location[1]+74
+         }
+         if(element.location[1] < -74){
+            indexY = element.location[1]-74
+         }
+         if(indexX >= 0 && indexY >= 0){
+          for(let i = 0 ; i < 24 ;i++){
+            for(let j = 0 ; j < 24;j++){
+              this.map[indexX+i][indexY+j] = 5;
+            }
+          }
+           
+         } 
+        }
+      }
+        
+    })
+    console.log("Test",this.map)
+
   }
   
 }
