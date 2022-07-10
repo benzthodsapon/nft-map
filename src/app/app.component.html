@@ -1,16 +1,8 @@
 <div>
-      
-<button mat-raised-button color="primary" *ngIf="checkAPI">TEST API</button>
-<button mat-raised-button color="primary" (click)="drawMap()">drawmap</button>
-
 <mat-spinner diameter="40" *ngIf="!checkAPI"></mat-spinner>
-
-<div>MAP</div>
-<!-- <div *ngFor="let column of map">
-      {{column}}
-</div> -->
-<div style="overflow: auto;">
+<div style="display: block;width: 100vw;height: 100vh;">
 <canvas #myCanvas></canvas>
 </div>
 
 </div>
+
